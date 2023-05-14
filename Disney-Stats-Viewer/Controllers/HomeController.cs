@@ -15,43 +15,71 @@ public class HomeController : Controller
     {
         _logger = logger;
     }
-
+    
     public IActionResult Index()
     {
+        return View();
+    }
+    
+    [HttpPost]
+    public IActionResult ExecuteQuery(QueryInputModel model)
+    {
         string m_strMySQLConnectionString;
-        m_strMySQLConnectionString = "server=localhost;userid=mnmustafa1109;database=test;port=3306;password=Lover@1109";
+        m_strMySQLConnectionString = "server=localhost;userid=syednouman;database=test;port=3306;password=123";
         MySqlConnection cnMySQL = new MySqlConnection(m_strMySQLConnectionString);
-        MySqlCommand cmdMySQL = cnMySQL.CreateCommand();    
-        cmdMySQL.CommandText = "SELECT * FROM actor";
+        MySqlCommand cmdMySQL = cnMySQL.CreateCommand();
+        cmdMySQL.CommandText = model.Query;
         cnMySQL.Open();
         MySqlDataReader reader = cmdMySQL.ExecuteReader();
-        // convert the reader to a list of strings
-        List<List<String>> results = new List<List<String>>();
-        for (int i = 0; i < reader.FieldCount; i++)
+
+        // Create the QueryResultModel instance
+        QueryResult resultModel = new QueryResult();
+
+        // Get the number of columns in the result set
+        int columnCount = reader.FieldCount;
+
+        // Initialize the 2D array in the QueryResultModel
+        resultModel.Results = new string[reader.FieldCount, 0];
+
+        // Convert the reader to a list of strings
+        List<List<string>> results = new List<List<string>>();
+        for (int i = 0; i < columnCount; i++)
         {
-            results.Add(new List<String>());
+            results.Add(new List<string>());
         }
+
         while (reader.Read())
         {
-            for (int i = 0; i < reader.FieldCount; i++)
+            for (int i = 0; i < columnCount; i++)
             {
                 results[i].Add(reader.GetValue(i).ToString());
             }
         }
-        foreach (List<String> result in results)
+
+        // Populate the 2D array in the QueryResultModel
+        resultModel.Results = new string[columnCount, results[0].Count];
+        for (int i = 0; i < columnCount; i++)
         {
-            foreach (String s in result)
+            for (int j = 0; j < results[i].Count; j++)
             {
-                Console.WriteLine(s);
+                resultModel.Results[i, j] = results[i][j];
             }
         }
-        
-        
 
         cnMySQL.Close();
-        
-        return View();
+
+        // Pass the resultModel to the view using ViewData
+        ViewData["QueryResults"] = resultModel;
+
+
+        return View("Results", resultModel);
     }
+
+    // public IActionResult Index()
+    // {
+    //    
+    //     return View();
+    // }
 
     public IActionResult Privacy()
     {

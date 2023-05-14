@@ -1,10 +1,12 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model QueryInputModel
 
-<div>
-    <ul>
-        <li><a href="/Home/Privacy">Privacy</a></li>
-        <li><a href="/Home/DisneyStats">Disney Stats</a></li>
-    </ul>
-</div>
+<h1>Query Submission</h1>
+
+<form asp-controller="Home" asp-action="ExecuteQuery" method="post">
+    <div class="form-group">
+        <label for="queryInput">Query:</label>
+        <textarea id="queryInput" name="Query" class="form-control" rows="5"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Execute</button>
+</form>
+
