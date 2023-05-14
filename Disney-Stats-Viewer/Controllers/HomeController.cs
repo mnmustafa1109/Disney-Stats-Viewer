@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Disney_Stats_Viewer.Models;
+using Microsoft.VisualBasic.FileIO;
 using MySqlConnector;
 
 namespace Disney_Stats_Viewer.Controllers;
@@ -25,12 +26,27 @@ public class HomeController : Controller
         cnMySQL.Open();
         MySqlDataReader reader = cmdMySQL.ExecuteReader();
         // convert the reader to a list of strings
-        List<Actor> actors = new List<Actor>();
+        List<List<String>> results = new List<List<String>>();
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            results.Add(new List<String>());
+        }
         while (reader.Read())
         {
-            actors.Add(new Actor(reader.GetInt32(0), reader.GetString(1)));
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                results[i].Add(reader.GetValue(i).ToString());
+            }
         }
-        ViewData["actors"] = actors;
+        foreach (List<String> result in results)
+        {
+            foreach (String s in result)
+            {
+                Console.WriteLine(s);
+            }
+        }
+        
+        
 
         cnMySQL.Close();
         
